@@ -1,13 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttershare/models/user.dart';
 import 'package:fluttershare/pages/activity_feed.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:fluttershare/pages/timeline.dart';
 import 'package:fluttershare/pages/upload.dart';
 import 'package:fluttershare/pages/search.dart';
+import 'package:fluttershare/pages/create_account.dart';
 import 'package:fluttershare/pages/profile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
+final usersRef = FirebaseFirestore.instance.collection("users");
+FirebaseFirestore firestore = FirebaseFirestore.instance;
+final DateTime timestamps = DateTime.now();
+User currentUser;
 
 class Home extends StatefulWidget {
   @override
@@ -21,8 +29,10 @@ class _HomeState extends State<Home> {
 
   @override
   void initState(){
+
     super.initState();
     pageController = PageController();
+
     // detecte when user sign in
     googleSignIn.onCurrentUserChanged.listen((account) {
       handleSignIn(account);
@@ -39,8 +49,11 @@ class _HomeState extends State<Home> {
       });
   }
 
+
   handleSignIn(GoogleSignInAccount account){
     if(account != null){
+
+      createUserInFiretore();
       print('User signed in!: $account');
       setState(() {
         isAuth = true;
@@ -50,6 +63,37 @@ class _HomeState extends State<Home> {
         isAuth = false;
       });
     }
+  }
+
+  createUserInFiretore() async{
+
+    // check if user exists in users collections in database according to their id
+    final GoogleSignInAccount user = googleSignIn.currentUser;
+    DocumentSnapshot doc = await usersRef.doc(user.id).get();
+
+    if(!doc.exists) {
+      // get username from create account, use it to make new user document in users collection
+    final username = await Navigator.push(
+    context, MaterialPageRoute(builder: (context) =>
+    CreateAccount()));
+
+    // if the user does not exist, then we want to make them to the create account page
+    usersRef.doc(user.id).setData({
+    "id": user.id,
+    "username": username,
+    "photoUrl": user.photoUrl,
+    "email" :user.email,
+    "displayName" : user.displayName,
+    "bio" : "",
+    "timestamps" : timestamps
+    });
+    doc = await usersRef.doc(user.id).get();
+    }
+
+    currentUser = User.fromDocument(doc);
+    print(currentUser);
+    print(currentUser.username);
+
   }
 
   @override
@@ -86,7 +130,11 @@ class _HomeState extends State<Home> {
       return Scaffold(
         body: PageView(
           children: [
-            Timeline(),
+            //Timeline(),
+             RaisedButton(
+              child: Text('Logout'),
+              onPressed: logout,
+            ),
             ActivityFeed(),
             Upload(),
             Search(),
@@ -110,11 +158,6 @@ class _HomeState extends State<Home> {
           ],
         ),
       );
-    
-    //return RaisedButton(
-    //  child: Text('Logout'),
-    //  onPressed: logout,
-    ///);
   }
   //Screen before Authentification
   Scaffold buildUnAuthScreen(){
@@ -163,6 +206,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+
     return isAuth ? buildAuthScreen() : buildUnAuthScreen();
   }
 }
