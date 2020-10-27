@@ -10,9 +10,12 @@ import 'package:fluttershare/pages/create_account.dart';
 import 'package:fluttershare/pages/profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 final GoogleSignIn googleSignIn = GoogleSignIn();
+final StorageReference storageRef =  FirebaseStorage.instance.ref();
 final usersRef = FirebaseFirestore.instance.collection("users");
+final postsRef = FirebaseFirestore.instance.collection("posts");
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 final DateTime timestamps = DateTime.now();
 User currentUser;
@@ -136,7 +139,7 @@ class _HomeState extends State<Home> {
               onPressed: logout,
             ),
             ActivityFeed(),
-            Upload(),
+            Upload(currentUser: currentUser),
             Search(),
             Profile(),
           ],

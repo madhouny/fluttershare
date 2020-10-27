@@ -40,6 +40,8 @@ dev_dependencies:
   image_picker: ^0.6.7+12
   google_sign_in: ^4.5.5
   geolocator: ^6.1.1
+  geocoding: ^1.0.5
+  location_permissions: ^3.0.0+1
   uuid: ^2.2.2
   image: ^2.1.18
   animator: ^2.0.1
