@@ -272,7 +272,7 @@ class _UploadState extends State<Upload> {
 
   // get The location of the User
   getUserLocation() async {
-    PermissionStatus permission = await LocationPermissions().requestPermissions();
+    //PermissionStatus permission = await LocationPermissions().requestPermissions();
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
