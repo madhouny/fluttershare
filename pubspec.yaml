@@ -45,7 +45,7 @@ dev_dependencies:
   location_permissions: ^3.0.0+1
   uuid: ^2.2.2
   image: ^2.1.18
-  animator: ^2.0.1
+  animator: ^1.0.0+3
   path_provider: ^1.6.21
   timeago: ^2.0.28
   cached_network_image: ^2.3.3
