@@ -133,7 +133,7 @@ class _PostState extends State<Post> {
       .collection('userPosts')
       .doc(postId)
       .update({'likes.$currentUserId': false});
-
+    removeLikeFromActivityFeed();
       setState(() {
         likeCount -= 1;
         isLiked = false;
@@ -144,7 +144,7 @@ class _PostState extends State<Post> {
           .collection('userPosts')
           .doc(postId)
           .update({'likes.$currentUserId': true});
-
+      addLikeToActivityFeed();
       setState(() {
         likeCount += 1;
         isLiked = true;
@@ -159,7 +159,40 @@ class _PostState extends State<Post> {
     }
   }
 
+  // Adding Liking Notifications to Firestore
+  addLikeToActivityFeed(){
+    // add a notification tothe postOwner's activity feed
+    // only iflike made by OTHER user (to avoid getting notification for our own like)
+    bool isNotPostOwner = currentUserId != ownerId;
+    if(isNotPostOwner){
+      activityFeedRef
+          .doc(ownerId).collection('feedItems')
+          .doc(postId)
+          .setData({
+        'type':'like',
+        'username':currentUser.username,
+        'userId':currentUser.id,
+        'userProfileImg':currentUser.photoUrl,
+        'postId':postId,
+        'mediaUrl':mediaUrl,
+        'timestamp':timestamps,
+    });
+  }
+  }
 
+  // Remove like notification from Firestore
+  removeLikeFromActivityFeed(){
+    bool isNotPostOwner = currentUserId != ownerId;
+    if(isNotPostOwner){
+      activityFeedRef
+          .doc(ownerId).collection('feedItems')
+          .doc(postId)
+          .get().then((doc){
+        if(doc.exists){
+          doc.reference.delete();
+        }
+    });
+  }}
 
   buildPostImage(){
     return GestureDetector(

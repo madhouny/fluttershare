@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fluttershare/pages/home.dart';
+import 'package:fluttershare/widgets/header.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fluttershare/widgets/progress.dart';
 
 class ActivityFeed extends StatefulWidget {
   @override
@@ -6,9 +10,34 @@ class ActivityFeed extends StatefulWidget {
 }
 
 class _ActivityFeedState extends State<ActivityFeed> {
+  getActivityFeed() async{
+    QuerySnapshot snapshot = await activityFeedRef
+        .doc(currentUser.id)
+        .collection('feedItems')
+        .orderBy('timestamp', descending: true)
+        .limit(50)
+        .get();
+    snapshot.docs.forEach((doc) {
+      print('Activity FeedItem: ${doc.data}');
+    });
+    return snapshot.docs;
+  }
   @override
   Widget build(BuildContext context) {
-    return Text('Activity Feed');
+    return Scaffold(
+      appBar: header(context, titleText: 'Activity Feed'),
+      body: Container(
+        child: FutureBuilder(
+          future: getActivityFeed(),
+          builder: (context,snapshot){
+            if(!snapshot.hasData){
+              return circularProgress();
+            }
+            return Text('activity feed');
+          },
+        ),
+      ),
+    );
   }
 }
 
