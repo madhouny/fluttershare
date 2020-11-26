@@ -18,6 +18,8 @@ final usersRef = FirebaseFirestore.instance.collection("users");
 final postsRef = FirebaseFirestore.instance.collection("posts");
 final commentsRef = FirebaseFirestore.instance.collection("comments");
 final activityFeedRef = FirebaseFirestore.instance.collection("feed");
+final followersRef = FirebaseFirestore.instance.collection("followers");
+final followingRef = FirebaseFirestore.instance.collection("following");
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 final DateTime timestamps = DateTime.now();
